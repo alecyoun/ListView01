@@ -8,7 +8,9 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -25,10 +27,29 @@ public class IntentExampleActivity extends Activity {
     Gallery mGallery;
 
     @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if (requestCode == requestCode) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                Intent callIntent = new Intent(Intent.ACTION_CALL);
+                callIntent.setData(Uri.parse("tel:480-240-9255"));
+                startActivity(callIntent);
+            }
+        }
+    }
+
+    @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_intent_sample);
+        int requestCode = 0;
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
+            Log.d("STATE", "Call Button DOES NOT WORK");
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.CALL_PHONE}, requestCode);
+            return;
+        }
 
         Button b1 = (Button) findViewById(R.id.button1);
         Button b2 = (Button) findViewById(R.id.button2);
@@ -36,22 +57,18 @@ public class IntentExampleActivity extends Activity {
         Button b4 = (Button) findViewById(R.id.button4);
 
         b1.setOnClickListener(new View.OnClickListener() { // 전화걸기
+
             @Override
-            public void onClick(View v) {
-                Intent i1 = new Intent(Intent.ACTION_CALL,
-                        Uri.parse("tel:010-0000-0000"));
+            public void onClick(View view) {
 
-                if(Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(
-                        getApplicationContext(), Manifest.permission.CALL_PHONE )
-                        == PackageManager.PERMISSION_GRANTED){
+                Log.d("STATE", "Call Button DOES WORK");
+                Intent callIntent = new Intent(Intent.ACTION_CALL);
+                callIntent.setData(Uri.parse("tel:480-240-9255"));
+                startActivity(callIntent);
 
-                    startActivity(i1);
-
-                } else {
-                    return ;
-                }
             }
         });
+
         b2.setOnClickListener(new View.OnClickListener() { // 지도보기
             @Override
             public void onClick(View v) {
